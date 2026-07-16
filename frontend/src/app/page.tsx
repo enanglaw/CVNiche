@@ -24,10 +24,10 @@ export default function Dashboard() {
 
   // Mock data representing database states
   const scores = [
-    { name: "Resume Quality", score: 90, color: "text-violet-400", bg: "bg-violet-500/10" },
-    { name: "ATS Compatibility", score: 88, color: "text-indigo-400", bg: "bg-indigo-500/10" },
-    { name: "LinkedIn Optimization", score: 82, color: "text-blue-400", bg: "bg-blue-500/10" },
-    { name: "Portfolio Readiness", score: 91, color: "text-cyan-400", bg: "bg-cyan-500/10" },
+    { name: "Resume Quality", score: 90, change: "+3%", color: "text-theme-accent", bg: "bg-theme-accent-bg" },
+    { name: "ATS Compatibility", score: 88, change: "+1%", color: "text-theme-accent", bg: "bg-theme-accent-bg" },
+    { name: "LinkedIn Optimization", score: 82, change: "+5%", color: "text-theme-accent", bg: "bg-theme-accent-bg" },
+    { name: "Portfolio Readiness", score: 91, change: "+2%", color: "text-theme-accent", bg: "bg-theme-accent-bg" },
   ];
 
   const skillGaps = [
@@ -46,13 +46,13 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Hero Welcome banner */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-violet-900/60 to-indigo-900/60 border border-violet-800/40 p-8 shadow-xl shadow-violet-900/10">
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-theme-accent-bg/60 to-indigo-900/60 border border-theme-accent/40 p-8 shadow-xl shadow-theme-accent/10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.25),rgba(255,255,255,0))]"></div>
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
             <h1 className="text-3xl font-extrabold text-white tracking-tight">Welcome back, John!</h1>
             <p className="text-zinc-300 max-w-xl text-sm leading-relaxed">
-              Your career DNA score is in the top <span className="text-violet-400 font-semibold">12%</span> of engineers. Complete your learning roadmap to unlock 3 matched senior roles at Stripe and Linear.
+              Your career DNA score is in the top <span className="text-theme-accent font-semibold">12%</span> of engineers. Complete your learning roadmap to unlock 3 matched senior roles at Stripe and Linear.
             </p>
           </div>
           <div className="flex gap-3 shrink-0">
@@ -60,7 +60,7 @@ export default function Dashboard() {
               href="/coach"
               className="bg-zinc-900 border border-zinc-700/60 text-zinc-200 hover:bg-zinc-800 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5"
             >
-              <Brain className="h-4.5 w-4.5 text-violet-400" />
+              <Brain className="h-4.5 w-4.5 text-theme-accent" />
               Ask Career Coach
             </Link>
           </div>
@@ -71,11 +71,11 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {scores.map((s) => (
           <div key={s.name} className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-5 hover:border-zinc-700/60 transition-all duration-300 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 h-24 w-24 bg-gradient-to-bl from-violet-600/5 to-transparent rounded-bl-full group-hover:from-violet-600/10 transition-all"></div>
+            <div className="absolute top-0 right-0 h-24 w-24 bg-gradient-to-bl from-theme-accent-bg to-transparent rounded-bl-full group-hover:opacity-80 transition-all"></div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">{s.name}</span>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.bg} ${s.color}`}>
-                +{Math.floor(Math.random() * 5) + 1}% vs last wk
+                {s.change} vs last wk
               </span>
             </div>
             <div className="mt-4 flex items-baseline gap-2">
@@ -85,7 +85,7 @@ export default function Dashboard() {
             {/* Progress bar */}
             <div className="mt-4 h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-violet-600 to-indigo-600 rounded-full transition-all duration-1000"
+                className="h-full bg-theme-btn rounded-full transition-all duration-1000"
                 style={{ width: `${s.score}%` }}
               ></div>
             </div>
@@ -109,7 +109,7 @@ export default function Dashboard() {
                   <p className="text-xs text-zinc-500">Skills required for your targeted Senior positions</p>
                 </div>
               </div>
-              <span className="text-xs text-violet-400 font-semibold hover:underline cursor-pointer flex items-center gap-1">
+              <span className="text-xs text-theme-accent font-semibold hover:underline cursor-pointer flex items-center gap-1">
                 View Learning Roadmap
                 <ArrowUpRight className="h-3 w-3" />
               </span>
@@ -153,7 +153,7 @@ export default function Dashboard() {
                   <p className="text-xs text-zinc-500">Track and optimize applied jobs</p>
                 </div>
               </div>
-              <Link href="/tracker" className="text-xs text-violet-400 font-semibold hover:underline flex items-center gap-1">
+              <Link href="/tracker" className="text-xs text-theme-accent font-semibold hover:underline flex items-center gap-1">
                 Go to Kanban Board
                 <ChevronRight className="h-3 w-3" />
               </Link>
@@ -172,7 +172,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-xs bg-violet-600/10 border border-violet-500/20 text-violet-400 px-2.5 py-1 rounded-full font-medium">
+                    <span className="text-xs bg-theme-accent-bg border border-theme-accent-border text-theme-accent px-2.5 py-1 rounded-full font-medium">
                       Match: {app.matchScore}%
                     </span>
                     <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
@@ -196,12 +196,12 @@ export default function Dashboard() {
             <div className="space-y-3">
               <Link 
                 href="/resumes" 
-                className="flex items-center justify-between p-4 rounded-xl bg-zinc-950/50 border border-zinc-850 hover:border-violet-500/30 hover:bg-zinc-950 transition-all group"
+                className="flex items-center justify-between p-4 rounded-xl bg-zinc-950/50 border border-zinc-850 hover:border-theme-accent-border hover:bg-zinc-950 transition-all group"
               >
                 <div className="flex items-center gap-3">
-                  <FileText className="h-5 w-5 text-violet-400" />
+                  <FileText className="h-5 w-5 text-theme-accent" />
                   <div>
-                    <span className="block text-sm font-semibold text-zinc-200 group-hover:text-violet-400 transition-colors">Resume Tailoring</span>
+                    <span className="block text-sm font-semibold text-zinc-200 group-hover:text-theme-accent transition-colors">Resume Tailoring</span>
                     <span className="block text-xs text-zinc-500">Auto-tailor to job specs</span>
                   </div>
                 </div>
@@ -244,10 +244,10 @@ export default function Dashboard() {
             
             <div className="relative pl-6 space-y-6 border-l border-zinc-800">
               <div className="relative">
-                <span className="absolute -left-[30px] top-1 h-4 w-4 rounded-full bg-violet-600 border-4 border-zinc-950 shadow shadow-violet-500"></span>
+                <span className="absolute -left-[30px] top-1 h-4 w-4 rounded-full bg-theme-btn border-4 border-zinc-950 shadow shadow-theme-accent"></span>
                 <span className="block text-sm font-semibold text-zinc-200">CKAD Certification</span>
                 <span className="block text-xs text-zinc-500 mt-1">Focus: Container Orchestration & Core Pod structures.</span>
-                <a href="https://training.linuxfoundation.org/" target="_blank" className="text-[10px] text-violet-400 hover:underline mt-1 block">Course Syllabus &rarr;</a>
+                <a href="https://training.linuxfoundation.org/" target="_blank" className="text-[10px] text-theme-accent hover:underline mt-1 block">Course Syllabus &rarr;</a>
               </div>
 
               <div className="relative">
