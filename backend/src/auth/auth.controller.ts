@@ -7,8 +7,8 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() body: any) {
-    const { email, password, firstName, lastName } = body;
-    return this.authService.register(email, password, firstName, lastName);
+    const { email, password, firstName, lastName, utmSource } = body;
+    return this.authService.register(email, password, firstName, lastName, utmSource);
   }
 
   @HttpCode(HttpStatus.OK)

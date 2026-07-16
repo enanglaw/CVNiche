@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   Sparkles, 
@@ -21,6 +21,21 @@ import {
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("scores");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const utmSource = urlParams.get("utm_source");
+      if (utmSource) {
+        sessionStorage.setItem("utm_source", utmSource);
+        fetch("http://localhost:5000/api/campaigns/click", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ utmSource })
+        }).catch((err) => console.error("Failed to log UTM click:", err));
+      }
+    }
+  }, []);
 
   // Mock data representing database states
   const scores = [

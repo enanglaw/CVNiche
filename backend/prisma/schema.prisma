@@ -45,6 +45,7 @@ model User {
   notifyJobAlerts Boolean     @default(true)
   notifyMarketing Boolean     @default(false)
   notifyPromos    Boolean     @default(false)
+  utmSource       String?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   
@@ -277,6 +278,7 @@ model Payment {
   status         String   // succeeded, pending, failed
   provider       String   @default("stripe")
   transactionId  String   @unique
+  utmSource      String?
   createdAt      DateTime @default(now())
 }
 
@@ -290,4 +292,16 @@ model Notification {
   isRead      Boolean   @default(false)
   scheduledAt DateTime?
   createdAt   DateTime  @default(now())
+}
+
+model AdCampaign {
+  id        String   @id @default(uuid())
+  title     String
+  channel   String   // Facebook, X, TikTok, LinkedIn
+  adCopy    String
+  targetUrl String
+  clicks    Int      @default(0)
+  signups   Int      @default(0)
+  revenue   Float    @default(0.0)
+  createdAt DateTime @default(now())
 }

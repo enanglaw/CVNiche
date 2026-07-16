@@ -10,7 +10,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(email: string, password: string, firstName?: string, lastName?: string) {
+  async register(email: string, password: string, firstName?: string, lastName?: string, utmSource?: string) {
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) {
       throw new ConflictException('Email already registered');
@@ -23,6 +23,7 @@ export class AuthService {
         passwordHash,
         firstName,
         lastName,
+        utmSource,
         profile: {
           create: {
             headline: firstName && lastName ? `${firstName} ${lastName}` : 'Professional',
@@ -41,6 +42,25 @@ export class AuthService {
         profile: true,
       },
     });
+
+    // If there is an active Campaign matching the UTM source channel, increment its signup conversions
+    if (utmSource) {
+      const channelLabel = utmSource.trim();
+      const campaigns = await this.prisma.adCampaign.findMany({
+        where: {
+          channel: {
+            equals: channelLabel,
+            mode: "insensitive"
+          }
+        }
+      });
+      for (const campaign of campaigns) {
+        await this.prisma.adCampaign.update({
+          where: { id: campaign.id },
+          data: { signups: { increment: 1 } }
+        });
+      }
+    }
 
     const { passwordHash: _, ...result } = user;
     return result;

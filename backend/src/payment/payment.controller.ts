@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Req, UseGuards } from "@nestjs/common";
+import { Controller, Post, Get, Body, Req, UseGuards, Param, Res } from "@nestjs/common";
 import { PaymentService } from "./payment.service";
 import { AuthGuard } from "../auth/auth.guard";
 
@@ -8,10 +8,14 @@ export class PaymentController {
 
   @UseGuards(AuthGuard)
   @Post("create-checkout")
-  async createCheckout(@Req() req: any, @Body("plan") plan: "PRO") {
+  async createCheckout(
+    @Req() req: any, 
+    @Body("plan") plan: "PRO",
+    @Body("utmSource") utmSource?: string
+  ) {
     // req.user is set by AuthGuard
     const userId = req.user.id;
-    return this.paymentService.createCheckoutSession(userId, plan || "PRO");
+    return this.paymentService.createCheckoutSession(userId, plan || "PRO", utmSource);
   }
 
   @UseGuards(AuthGuard)
@@ -26,5 +30,26 @@ export class PaymentController {
   async cancelSubscription(@Req() req: any) {
     const userId = req.user.id;
     return this.paymentService.cancelSubscription(userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get("transactions")
+  async getTransactions(@Req() req: any) {
+    const userId = req.user.id;
+    return this.paymentService.getTransactions(userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get("invoice/:paymentId")
+  async getInvoice(
+    @Req() req: any,
+    @Param("paymentId") paymentId: string,
+    @Res() res: any
+  ) {
+    const userId = req.user.id;
+    const role = req.user.role;
+    const html = await this.paymentService.generateInvoiceHtml(paymentId, userId, role);
+    res.setHeader("Content-Type", "text/html");
+    return res.send(html);
   }
 }

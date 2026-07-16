@@ -149,7 +149,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
   ];
 
   const navigation = isAdmin 
-    ? [...baseNavigation, { name: "Admin Console", href: "/admin", icon: Shield }]
+    ? [...baseNavigation, { name: "Admin Console", href: "/cvniche/admin", icon: Shield }]
     : baseNavigation;
 
   return (

@@ -44,8 +44,8 @@ export default function Pricing() {
     setLoading(true);
     setError(null);
     try {
-      // Fetch dynamic JWT auth token from localStorage if logged in
       const token = localStorage.getItem("token");
+      const utmSource = sessionStorage.getItem("utm_source");
       
       const res = await fetch("http://localhost:5000/api/payment/create-checkout", {
         method: "POST",
@@ -53,7 +53,7 @@ export default function Pricing() {
           "Content-Type": "application/json",
           "Authorization": token ? `Bearer ${token}` : ""
         },
-        body: JSON.stringify({ plan: "PRO" })
+        body: JSON.stringify({ plan: "PRO", utmSource })
       });
 
       if (!res.ok) {

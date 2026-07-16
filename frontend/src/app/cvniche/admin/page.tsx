@@ -57,7 +57,7 @@ interface Metrics {
 }
 
 export default function AdminConsole() {
-  const [activeTab, setActiveTab] = useState<"users" | "payments" | "support">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "payments" | "support" | "campaigns">("users");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -66,6 +66,8 @@ export default function AdminConsole() {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [payments, setPayments] = useState<PaymentItem[]>([]);
   const [tickets, setTickets] = useState<TicketItem[]>([]);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [campaignAnalytics, setCampaignAnalytics] = useState<any[]>([]);
   
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
@@ -80,14 +82,16 @@ export default function AdminConsole() {
       };
 
       // Fetch all administrative resources
-      const [mRes, uRes, pRes, tRes] = await Promise.all([
+      const [mRes, uRes, pRes, tRes, cRes, aRes] = await Promise.all([
         fetch("http://localhost:5000/api/admin/metrics", { headers }),
         fetch("http://localhost:5000/api/admin/users", { headers }),
         fetch("http://localhost:5000/api/admin/payments", { headers }),
-        fetch("http://localhost:5000/api/admin/support-tickets", { headers })
+        fetch("http://localhost:5000/api/admin/support-tickets", { headers }),
+        fetch("http://localhost:5000/api/campaigns", { headers }),
+        fetch("http://localhost:5000/api/campaigns/analytics", { headers })
       ]);
 
-      if (!mRes.ok || !uRes.ok || !pRes.ok || !tRes.ok) {
+      if (!mRes.ok || !uRes.ok || !pRes.ok || !tRes.ok || !cRes.ok || !aRes.ok) {
         throw new Error("Failed to load administrative resources. Insufficient permissions.");
       }
 
@@ -95,11 +99,15 @@ export default function AdminConsole() {
       const uData = await uRes.json();
       const pData = await pRes.json();
       const tData = await tRes.json();
+      const cData = await cRes.json();
+      const aData = await aRes.json();
 
       setMetrics(mData);
       setUsers(uData);
       setPayments(pData);
       setTickets(tData);
+      setCampaigns(cData);
+      setCampaignAnalytics(aData);
     } catch (err: any) {
       setError(err.message || "Failed to load administrative logs.");
     } finally {
@@ -277,6 +285,14 @@ export default function AdminConsole() {
         >
           Support Requests
         </button>
+        <button 
+          onClick={() => setActiveTab("campaigns")}
+          className={`pb-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all ${
+            activeTab === "campaigns" ? "border-theme-accent text-theme-accent" : "border-transparent text-zinc-500 hover:text-zinc-300"
+          }`}
+        >
+          Ad Campaigns & ROI
+        </button>
       </div>
 
       {/* Tab Panels */}
@@ -362,6 +378,7 @@ export default function AdminConsole() {
                       <th className="py-3 px-4">Total Price</th>
                       <th className="py-3 px-4">Status</th>
                       <th className="py-3 px-4">Date</th>
+                      <th className="py-3 px-4 text-right">Invoice</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-900/60">
@@ -377,6 +394,14 @@ export default function AdminConsole() {
                           }`}>{p.status}</span>
                         </td>
                         <td className="py-3.5 px-4 text-zinc-500">{new Date(p.createdAt).toLocaleDateString()}</td>
+                        <td className="py-3.5 px-4 text-right">
+                          <button
+                            onClick={() => window.open(`http://localhost:5000/api/payment/invoice/${p.id}`, '_blank')}
+                            className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-semibold text-[10px] transition-colors"
+                          >
+                            View Invoice
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -432,6 +457,139 @@ export default function AdminConsole() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: Ad Campaigns & ROI */}
+        {activeTab === "campaigns" && (
+          <div className="space-y-8">
+            {/* ROI Grouped Analytics Grid */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Marketing Conversion Attribution</h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {campaignAnalytics.map((c) => (
+                  <div key={c.channel} className="bg-zinc-950/40 border border-zinc-850 p-4 rounded-xl">
+                    <div className="flex justify-between items-center text-xs font-bold text-zinc-300">
+                      <span>{c.channel}</span>
+                      <span className="text-theme-accent">{c.conversionRate}% ROI</span>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-2 text-[11px] text-zinc-500">
+                      <div>Clicks: <span className="text-zinc-300 font-semibold">{c.clicks}</span></div>
+                      <div>Signups: <span className="text-zinc-300 font-semibold">{c.signups}</span></div>
+                      <div>Pro Sub: <span className="text-zinc-300 font-semibold">{c.conversions}</span></div>
+                      <div>Revenue: <span className="text-green-400 font-bold">${c.revenue.toFixed(2)}</span></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Broadcast Ad Form & Campaigns Logs Split */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Form: Broadcast New Ad */}
+              <div className="bg-zinc-950/20 border border-zinc-850 p-5 rounded-xl space-y-4 h-fit">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300">Broadcast Social Campaign</h3>
+                <p className="text-[11px] text-zinc-500">Simulate broadcasting an ad copy to social platform APIs with UTM landing tags.</p>
+                
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  const target = e.target as any;
+                  const title = target.campaignTitle.value;
+                  const channel = target.campaignChannel.value;
+                  const adCopy = target.campaignCopy.value;
+                  
+                  if (!title || !adCopy) return alert("Fields are required.");
+                  
+                  setActionLoadingId("broadcast");
+                  try {
+                    const token = localStorage.getItem("token");
+                    const res = await fetch("http://localhost:5000/api/campaigns/broadcast", {
+                      method: "POST",
+                      headers: {
+                        "Authorization": token ? `Bearer ${token}` : "",
+                        "Content-Type": "application/json"
+                      },
+                      body: JSON.stringify({ title, channel, adCopy })
+                    });
+                    if (!res.ok) throw new Error("Failed to broadcast ad");
+                    
+                    target.reset();
+                    await fetchAdminData();
+                    alert("Ad campaign successfully simulated and broadcast!");
+                  } catch (err: any) {
+                    alert(err.message || "Broadcast failed");
+                  } finally {
+                    setActionLoadingId(null);
+                  }
+                }} className="space-y-3.5 text-xs">
+                  <div>
+                    <label className="block text-zinc-400 mb-1 font-semibold">Ad Campaign Title</label>
+                    <input name="campaignTitle" type="text" placeholder="e.g. Summer Promo 2026" className="w-full bg-zinc-900 border border-zinc-800 p-2.5 rounded-lg text-white font-medium" />
+                  </div>
+                  <div>
+                    <label className="block text-zinc-400 mb-1 font-semibold">Social Network Channel</label>
+                    <select name="campaignChannel" className="w-full bg-zinc-900 border border-zinc-800 p-2.5 rounded-lg text-white font-medium">
+                      <option value="facebook">Facebook Ads</option>
+                      <option value="x">X / Twitter Ads</option>
+                      <option value="tiktok">TikTok Ads</option>
+                      <option value="linkedin">LinkedIn Ads</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-zinc-400 mb-1 font-semibold">Creative Ad Copy</label>
+                    <textarea name="campaignCopy" rows={3} placeholder="Write creative ad copywriting..." className="w-full bg-zinc-900 border border-zinc-800 p-2.5 rounded-lg text-white font-medium" />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={actionLoadingId === "broadcast"}
+                    className="w-full bg-theme-btn text-white py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-theme-btn flex items-center justify-center gap-1.5 hover:-translate-y-0.5 duration-200 cursor-pointer"
+                  >
+                    {actionLoadingId === "broadcast" ? "Broadcasting..." : "Broadcast Ad Creative"}
+                  </button>
+                </form>
+              </div>
+
+              {/* Active Campaigns Log */}
+              <div className="lg:col-span-2 space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300">Active Ad Campaigns</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                      <tr className="border-b border-zinc-800 text-zinc-500 font-semibold uppercase tracking-wider">
+                        <th className="py-2.5 px-3">Title</th>
+                        <th className="py-2.5 px-3">Channel</th>
+                        <th className="py-2.5 px-3">Clicks</th>
+                        <th className="py-2.5 px-3">Signups</th>
+                        <th className="py-2.5 px-3">Revenue</th>
+                        <th className="py-2.5 px-3 text-right">Attribution Link</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-900/60 text-zinc-400">
+                      {campaigns.map((c) => (
+                        <tr key={c.id} className="hover:bg-zinc-900/10">
+                          <td className="py-3 px-3 font-semibold text-zinc-200">{c.title}</td>
+                          <td className="py-3 px-3 uppercase text-[9px] font-bold text-theme-accent">{c.channel}</td>
+                          <td className="py-3 px-3">{c.clicks}</td>
+                          <td className="py-3 px-3">{c.signups}</td>
+                          <td className="py-3 px-3 text-green-400 font-semibold">${c.revenue.toFixed(2)}</td>
+                          <td className="py-3 px-3 text-right">
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(c.targetUrl);
+                                alert("Attribution URL copied to clipboard!");
+                              }}
+                              className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-semibold text-[9px] transition-all cursor-pointer"
+                            >
+                              Copy URL
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         )}

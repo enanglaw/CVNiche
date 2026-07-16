@@ -34,6 +34,8 @@ export default function Settings() {
     notifyPromos: false
   });
 
+  const [payments, setPayments] = useState<any[]>([]);
+
   const fetchSettings = async () => {
     setLoading(true);
     try {
@@ -56,6 +58,13 @@ export default function Settings() {
           notifyMarketing: prefData.notifyMarketing,
           notifyPromos: prefData.notifyPromos
         });
+      }
+
+      // 3. Fetch Payments History
+      const payRes = await fetch("http://localhost:5000/api/payment/transactions", { headers });
+      if (payRes.ok) {
+        const payData = await payRes.json();
+        setPayments(payData);
       }
     } catch (err) {
       console.error("Failed to load user settings", err);
@@ -295,6 +304,57 @@ export default function Settings() {
           </button>
         </div>
       </form>
+
+      {/* SECTION 3: Billing History */}
+      {payments.length > 0 && (
+        <div className="bg-zinc-900/20 border border-zinc-850 rounded-2xl p-6 space-y-6">
+          <div>
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-theme-accent" />
+              Billing History & Receipts
+            </h2>
+            <p className="text-xs text-zinc-500 mt-1">Download or print invoices of your past payments.</p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-zinc-800 text-zinc-500 font-semibold uppercase tracking-wider">
+                  <th className="py-3 px-4">Receipt ID</th>
+                  <th className="py-3 px-4">Billing Plan</th>
+                  <th className="py-3 px-4">Amount</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Date</th>
+                  <th className="py-3 px-4 text-right">Invoice</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-900/60">
+                {payments.map((p) => (
+                  <tr key={p.id} className="hover:bg-zinc-900/10 text-zinc-300">
+                    <td className="py-3.5 px-4 font-mono text-zinc-400">{p.id.slice(0, 8).toUpperCase()}</td>
+                    <td className="py-3.5 px-4">Pro Plan</td>
+                    <td className="py-3.5 px-4 font-bold text-white">${p.amount.toFixed(2)}</td>
+                    <td className="py-3.5 px-4">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        p.status === "succeeded" ? "bg-green-950/20 text-green-400 border border-green-500/10" : "bg-red-950/20 text-red-400"
+                      }`}>{p.status}</span>
+                    </td>
+                    <td className="py-3.5 px-4 text-zinc-500">{new Date(p.createdAt).toLocaleDateString()}</td>
+                    <td className="py-3.5 px-4 text-right">
+                      <button
+                        onClick={() => window.open(`http://localhost:5000/api/payment/invoice/${p.id}`, '_blank')}
+                        className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-semibold text-[10px] transition-colors"
+                      >
+                        View Invoice
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

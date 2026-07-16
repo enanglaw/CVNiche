@@ -10,6 +10,7 @@ import { JobModule } from './job/job.module';
 import { AiModule } from './ai/ai.module';
 import { PaymentModule } from './payment/payment.module';
 import { AdminModule } from './admin/admin.module';
+import { CampaignModule } from './campaign/campaign.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AdminModule } from './admin/admin.module';
     AiModule,
     PaymentModule,
     AdminModule,
+    CampaignModule,
   ],
   controllers: [AppController],
   providers: [AppService],
