@@ -133,7 +133,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
             />
             <div>
               <span className="font-bold text-lg bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">CVNiche</span>
-              <span className={`text-[10px] block ${style.textAccent} font-semibold tracking-wider uppercase transition-colors`}>{style.displayName}</span>
+              <span className={`text-[10px] block ${style.textAccent} font-semibold tracking-wider uppercase transition-colors`}>AI Career Platform</span>
             </div>
           </div>
 
