@@ -8,7 +8,27 @@ logger = logging.getLogger("cvniche-ai")
 
 class GeminiService:
     def __init__(self):
+        # 1. Check environment variable first
         self.api_key = os.environ.get("GEMINI_API_KEY")
+        
+        # 2. Parse from env files if not set in shell environment
+        if not self.api_key or self.api_key == "your-gemini-api-key-here":
+            paths = ["../backend/.env", ".env", "backend/.env", "../../backend/.env"]
+            for path in paths:
+                if os.path.exists(path):
+                    try:
+                        with open(path, "r") as f:
+                            for line in f:
+                                if line.strip().startswith("GEMINI_API_KEY="):
+                                    val = line.split("=", 1)[1].strip().strip('"').strip("'")
+                                    if val and val != "your-gemini-api-key-here":
+                                        self.api_key = val
+                                        break
+                    except Exception:
+                        pass
+                if self.api_key:
+                    break
+
         self.client = None
         if self.api_key and self.api_key != "your-gemini-api-key-here":
             try:

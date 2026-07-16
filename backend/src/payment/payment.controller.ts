@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Req, UseGuards, Param, Res } from "@nestjs/common";
+import { Controller, Post, Get, Body, Req, UseGuards, Param, Res, Headers } from "@nestjs/common";
 import { PaymentService } from "./payment.service";
 import { AuthGuard } from "../auth/auth.guard";
 
@@ -51,5 +51,22 @@ export class PaymentController {
     const html = await this.paymentService.generateInvoiceHtml(paymentId, userId, role);
     res.setHeader("Content-Type", "text/html");
     return res.send(html);
+  }
+
+  @Post("webhook/paystack")
+  async paystackWebhook(
+    @Headers("x-paystack-signature") signature: string,
+    @Req() req: any
+  ) {
+    const rawBody = req.rawBody ? req.rawBody.toString() : JSON.stringify(req.body);
+    return this.paymentService.handlePaystackWebhook(signature, rawBody);
+  }
+
+  @Post("webhook/flutterwave")
+  async flutterwaveWebhook(
+    @Headers("verif-hash") hashHeader: string,
+    @Body() body: any
+  ) {
+    return this.paymentService.handleFlutterwaveWebhook(hashHeader, body);
   }
 }

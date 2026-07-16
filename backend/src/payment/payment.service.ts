@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException, ForbiddenException } from "@nest
 import { PrismaService } from "../prisma/prisma.service";
 import { Plan } from "@prisma/client";
 import Stripe from "stripe";
+import * as crypto from "crypto";
 
 @Injectable()
 export class PaymentService {
@@ -44,8 +45,13 @@ export class PaymentService {
       throw new Error("User not found");
     }
 
-    // Stripe Mode
-    if (this.stripe) {
+    const isProduction = process.env.NODE_ENV === "production";
+    const provider = isProduction 
+      ? (process.env.PAYMENT_PROVIDER || "mock").toLowerCase() 
+      : "mock";
+
+    // 1. STRIPE PROVIDER
+    if (provider === "stripe" && this.stripe) {
       try {
         const session = await this.stripe.checkout.sessions.create({
           payment_method_types: ["card"],
@@ -65,14 +71,88 @@ export class PaymentService {
           },
         });
 
-        return { url: session.url, mock: false };
+        return { url: session.url, mock: false, provider: "stripe" };
       } catch (err: any) {
         this.logger.error(`Stripe session creation failed: ${err.message}`);
         throw new Error(`Stripe checkout initialization failed: ${err.message}`);
       }
     }
 
-    // Mock Developer Mode - Auto-upgrade user to PRO immediately for ease of testing
+    // 2. PAYSTACK PROVIDER
+    if (provider === "paystack") {
+      try {
+        const paystackSecret = process.env.PAYSTACK_SECRET_KEY;
+        const res = await fetch("https://api.paystack.co/transaction/initialize", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${paystackSecret}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: user.email,
+            amount: 399, // $3.99 USD in cents/kobo smallest unit
+            callback_url: `${process.env.FRONTEND_URL || "http://localhost:3000"}/cvniche/`,
+            metadata: {
+              userId,
+              plan: targetPlan,
+              utmSource: utmSource || "",
+            },
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.status) {
+          throw new Error(data.message || "Failed to initialize Paystack transaction");
+        }
+        return { url: data.data.authorization_url, mock: false, provider: "paystack" };
+      } catch (err: any) {
+        this.logger.error(`Paystack initialization failed: ${err.message}`);
+        throw new Error(`Paystack checkout initialization failed: ${err.message}`);
+      }
+    }
+
+    // 3. FLUTTERWAVE PROVIDER
+    if (provider === "flutterwave") {
+      try {
+        const flwSecret = process.env.FLUTTERWAVE_SECRET_KEY;
+        const txRef = `flw-tx-${Date.now()}-${userId.slice(0, 5)}`;
+        const res = await fetch("https://api.flutterwave.com/v3/payments", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${flwSecret}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            tx_ref: txRef,
+            amount: 3.99,
+            currency: "USD",
+            redirect_url: `${process.env.FRONTEND_URL || "http://localhost:3000"}/cvniche/`,
+            customer: {
+              email: user.email,
+              name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || "CVNiche Customer",
+            },
+            meta: {
+              userId,
+              plan: targetPlan,
+              utmSource: utmSource || "",
+            },
+            customizations: {
+              title: "CVNiche Pro Upgrade",
+              description: "Democratized career intelligence subscription",
+            },
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.status !== "success") {
+          throw new Error(data.message || "Failed to initialize Flutterwave transaction");
+        }
+        return { url: data.data.link, mock: false, provider: "flutterwave" };
+      } catch (err: any) {
+        this.logger.error(`Flutterwave initialization failed: ${err.message}`);
+        throw new Error(`Flutterwave checkout initialization failed: ${err.message}`);
+      }
+    }
+
+    // 4. MOCK DEVELOPER MODE - Auto-upgrade user to PRO immediately for ease of testing
     this.logger.log(`[Mock Payment] Simulating successful upgrade to PRO for user ${userId}`);
     
     // Create/Update Subscription in DB
@@ -363,5 +443,171 @@ export class PaymentService {
       where: { userId },
       orderBy: { createdAt: "desc" },
     });
+  }
+
+  /**
+   * Paystack Webhook processor
+   */
+  async handlePaystackWebhook(signature: string, rawBody: string) {
+    const secret = process.env.PAYSTACK_SECRET_KEY;
+    if (!secret) {
+      this.logger.error("Paystack Secret Key is missing in env. Webhook ignored.");
+      return { received: true };
+    }
+    const hash = crypto
+      .createHmac("sha512", secret)
+      .update(rawBody)
+      .digest("hex");
+
+    if (hash !== signature) {
+      this.logger.error("Paystack Webhook signature verification failed.");
+      throw new Error("Invalid signature");
+    }
+
+    const payload = JSON.parse(rawBody);
+    if (payload.event === "charge.success") {
+      const data = payload.data;
+      const userId = data.metadata?.userId;
+      const plan = (data.metadata?.plan || "PRO") as Plan;
+      const utmSource = data.metadata?.utmSource || null;
+      const amount = data.amount / 100; // Paystack is in cents
+      const transactionId = data.reference;
+
+      if (userId && plan) {
+        await this.prisma.subscription.upsert({
+          where: { userId },
+          update: {
+            plan,
+            status: "active",
+            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          },
+          create: {
+            userId,
+            plan,
+            status: "active",
+            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          },
+        });
+
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: { plan },
+        });
+
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        const finalUtmSource = utmSource || user?.utmSource || null;
+
+        // Create Payment record
+        await this.prisma.payment.create({
+          data: {
+            userId,
+            amount,
+            status: "succeeded",
+            transactionId,
+            utmSource: finalUtmSource,
+          },
+        });
+
+        // Credit Campaign ROI
+        if (finalUtmSource) {
+          const campaigns = await this.prisma.adCampaign.findMany({
+            where: {
+              channel: {
+                equals: finalUtmSource.trim(),
+                mode: "insensitive",
+              },
+            },
+          });
+          for (const campaign of campaigns) {
+            await this.prisma.adCampaign.update({
+              where: { id: campaign.id },
+              data: { revenue: { increment: amount } },
+            });
+          }
+        }
+
+        this.logger.log(`Successfully upgraded user ${userId} to ${plan} via Paystack Webhook`);
+      }
+    }
+
+    return { received: true };
+  }
+
+  /**
+   * Flutterwave Webhook processor
+   */
+  async handleFlutterwaveWebhook(hashHeader: string, payload: any) {
+    const localHash = process.env.FLUTTERWAVE_SECRET_HASH;
+    if (!localHash || hashHeader !== localHash) {
+      this.logger.error("Flutterwave Webhook signature verification failed.");
+      throw new Error("Invalid signature");
+    }
+
+    if (payload.status === "successful" || payload.event === "charge.completed" || (payload.data && payload.data.status === "successful")) {
+      const data = payload.data || payload;
+      const userId = data.meta?.userId;
+      const plan = (data.meta?.plan || "PRO") as Plan;
+      const utmSource = data.meta?.utmSource || null;
+      const amount = data.amount;
+      const transactionId = data.tx_ref || data.id?.toString() || `flw-tx-${Date.now()}`;
+
+      if (userId && plan) {
+        await this.prisma.subscription.upsert({
+          where: { userId },
+          update: {
+            plan,
+            status: "active",
+            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          },
+          create: {
+            userId,
+            plan,
+            status: "active",
+            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          },
+        });
+
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: { plan },
+        });
+
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        const finalUtmSource = utmSource || user?.utmSource || null;
+
+        // Create Payment record
+        await this.prisma.payment.create({
+          data: {
+            userId,
+            amount,
+            status: "succeeded",
+            transactionId,
+            utmSource: finalUtmSource,
+          },
+        });
+
+        // Credit Campaign ROI
+        if (finalUtmSource) {
+          const campaigns = await this.prisma.adCampaign.findMany({
+            where: {
+              channel: {
+                equals: finalUtmSource.trim(),
+                mode: "insensitive",
+              },
+            },
+          });
+          for (const campaign of campaigns) {
+            await this.prisma.adCampaign.update({
+              where: { id: campaign.id },
+              data: { revenue: { increment: amount } },
+            });
+          }
+        }
+
+        this.logger.log(`Successfully upgraded user ${userId} to ${plan} via Flutterwave Webhook`);
+      }
+    }
+
+    return { received: true };
   }
 }
