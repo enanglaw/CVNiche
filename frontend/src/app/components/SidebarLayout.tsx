@@ -149,7 +149,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
   ];
 
   const navigation = isAdmin 
-    ? [...baseNavigation, { name: "Admin Console", href: "/cvniche/admin", icon: Shield }]
+    ? [...baseNavigation, { name: "Admin Console", href: "/admin", icon: Shield }]
     : baseNavigation;
 
   return (
@@ -163,7 +163,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
           {/* Logo */}
           <div className={`h-16 px-6 flex items-center gap-2 border-b ${style.border}`}>
             <img 
-              src="/logo.png" 
+              src="/cvniche/logo.png" 
               alt="CVNiche Logo" 
               className={`h-9 w-9 rounded-xl object-cover shadow-lg border ${style.border}`} 
             />

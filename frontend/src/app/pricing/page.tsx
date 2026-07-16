@@ -47,7 +47,7 @@ export default function Pricing() {
       const token = localStorage.getItem("token");
       const utmSource = sessionStorage.getItem("utm_source");
       
-      const res = await fetch("http://localhost:5000/api/payment/create-checkout", {
+      const res = await fetch("http://localhost:5001/api/payment/create-checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

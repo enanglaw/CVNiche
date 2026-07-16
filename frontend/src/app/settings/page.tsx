@@ -43,14 +43,14 @@ export default function Settings() {
       const headers = { "Authorization": token ? `Bearer ${token}` : "" };
       
       // 1. Fetch Subscription Status
-      const subRes = await fetch("http://localhost:5000/api/payment/subscription-status", { headers });
+      const subRes = await fetch("http://localhost:5001/api/payment/subscription-status", { headers });
       if (subRes.ok) {
         const subData = await subRes.json();
         setUserPlan(subData.plan || "FREE");
       }
 
       // 2. Fetch User Preferences
-      const prefRes = await fetch("http://localhost:5000/api/profile/preferences", { headers });
+      const prefRes = await fetch("http://localhost:5001/api/profile/preferences", { headers });
       if (prefRes.ok) {
         const prefData = await prefRes.json();
         setPrefs({
@@ -61,7 +61,7 @@ export default function Settings() {
       }
 
       // 3. Fetch Payments History
-      const payRes = await fetch("http://localhost:5000/api/payment/transactions", { headers });
+      const payRes = await fetch("http://localhost:5001/api/payment/transactions", { headers });
       if (payRes.ok) {
         const payData = await payRes.json();
         setPayments(payData);
@@ -90,7 +90,7 @@ export default function Settings() {
     setMessage(null);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/profile/preferences", {
+      const res = await fetch("http://localhost:5001/api/profile/preferences", {
         method: "PUT",
         headers: {
           "Authorization": token ? `Bearer ${token}` : "",
@@ -118,7 +118,7 @@ export default function Settings() {
     setMessage(null);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/payment/cancel-subscription", {
+      const res = await fetch("http://localhost:5001/api/payment/cancel-subscription", {
         method: "POST",
         headers: { "Authorization": token ? `Bearer ${token}` : "" }
       });
@@ -342,7 +342,7 @@ export default function Settings() {
                     <td className="py-3.5 px-4 text-zinc-500">{new Date(p.createdAt).toLocaleDateString()}</td>
                     <td className="py-3.5 px-4 text-right">
                       <button
-                        onClick={() => window.open(`http://localhost:5000/api/payment/invoice/${p.id}`, '_blank')}
+                        onClick={() => window.open(`http://localhost:5001/api/payment/invoice/${p.id}`, '_blank')}
                         className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 px-2 py-1 rounded font-semibold text-[10px] transition-colors"
                       >
                         View Invoice

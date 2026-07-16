@@ -28,7 +28,7 @@ export default function Dashboard() {
       const utmSource = urlParams.get("utm_source");
       if (utmSource) {
         sessionStorage.setItem("utm_source", utmSource);
-        fetch("http://localhost:5000/api/campaigns/click", {
+        fetch("http://localhost:5001/api/campaigns/click", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ utmSource })

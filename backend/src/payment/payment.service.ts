@@ -56,8 +56,8 @@ export class PaymentService {
             },
           ],
           mode: "subscription",
-          success_url: `${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${process.env.FRONTEND_URL || "http://localhost:3000"}/pricing`,
+          success_url: `${process.env.FRONTEND_URL || "http://localhost:3000"}/cvniche/?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${process.env.FRONTEND_URL || "http://localhost:3000"}/cvniche/pricing`,
           metadata: {
             userId,
             plan: targetPlan,
@@ -129,7 +129,7 @@ export class PaymentService {
     }
 
     return { 
-      url: `${process.env.FRONTEND_URL || "http://localhost:3000"}/?payment=mock_success`, 
+      url: `${process.env.FRONTEND_URL || "http://localhost:3000"}/cvniche/?payment=mock_success`, 
       mock: true 
     };
   }
