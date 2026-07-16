@@ -43,7 +43,7 @@ export default function PortfoliosPage() {
       <div className="flex items-center justify-between border-b border-zinc-800 pb-6">
         <div>
           <h1 className="text-2xl font-bold text-zinc-100 flex items-center gap-2">
-            <Globe className="h-6 w-6 text-violet-500" />
+            <Globe className="h-6 w-6 text-theme-accent" />
             Portfolio Website Builder
           </h1>
           <p className="text-sm text-zinc-500">Build and host a professional digital presence synced directly with your profile.</p>
@@ -54,7 +54,7 @@ export default function PortfoliosPage() {
             disabled={isSyncing}
             className="bg-zinc-900 border border-zinc-850 hover:bg-zinc-800 text-zinc-300 px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2"
           >
-            <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin text-violet-400" : ""}`} />
+            <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin text-theme-accent" : ""}`} />
             {isSyncing ? "Syncing..." : "Sync from Profile"}
           </button>
           
@@ -63,7 +63,7 @@ export default function PortfoliosPage() {
             className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-lg ${
               isPublished 
                 ? "bg-red-900/20 text-red-400 border border-red-500/20 hover:bg-red-900/35" 
-                : "bg-violet-600 text-white hover:bg-violet-500 shadow-violet-600/10"
+                : "bg-theme-btn text-white shadow-theme-btn"
             }`}
           >
             {isPublished ? "Unpublish Website" : "Publish Portfolio"}
@@ -77,14 +77,14 @@ export default function PortfoliosPage() {
           {/* Domain Setup */}
           <div className="bg-zinc-900/30 border border-zinc-800/60 rounded-2xl p-6 space-y-5">
             <h2 className="text-base font-bold text-zinc-200 flex items-center gap-2">
-              <Settings className="h-4.5 w-4.5 text-violet-500" />
+              <Settings className="h-4.5 w-4.5 text-theme-accent" />
               Domain & URL Settings
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider">Subdomain URL</label>
-                <div className="flex rounded-lg overflow-hidden border border-zinc-800 focus-within:border-violet-500 transition-colors">
+                <div className="flex rounded-lg overflow-hidden border border-zinc-800 focus-within:border-theme-accent-border transition-colors">
                   <input 
                     type="text"
                     className="w-full bg-zinc-950 px-3 py-2 text-sm text-zinc-300 focus:outline-none"
@@ -102,7 +102,7 @@ export default function PortfoliosPage() {
                 <input 
                   type="text"
                   placeholder="e.g. www.johndoe.me"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-500 text-zinc-300 transition-colors placeholder:text-zinc-650"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none border-theme-accent-focus text-zinc-300 transition-colors placeholder:text-zinc-655"
                   value={customDomain}
                   onChange={(e) => setCustomDomain(e.target.value)}
                 />
@@ -116,7 +116,7 @@ export default function PortfoliosPage() {
                 <a 
                   href={`https://${slug}.cvniche.com`} 
                   target="_blank" 
-                  className="text-violet-400 hover:underline font-semibold flex items-center gap-0.5"
+                  className="text-theme-accent hover:underline font-semibold flex items-center gap-0.5"
                 >
                   {slug}.cvniche.com
                   <ExternalLink className="h-3 w-3" />
@@ -128,7 +128,7 @@ export default function PortfoliosPage() {
           {/* Template Selectors */}
           <div className="bg-zinc-900/30 border border-zinc-800/60 rounded-2xl p-6 space-y-5">
             <h2 className="text-base font-bold text-zinc-200 flex items-center gap-2">
-              <Layout className="h-4.5 w-4.5 text-violet-500" />
+              <Layout className="h-4.5 w-4.5 text-theme-accent" />
               Select Template Layout
             </h2>
 
@@ -139,19 +139,19 @@ export default function PortfoliosPage() {
                   onClick={() => setTemplate(tmpl.id)}
                   className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 flex flex-col justify-between ${
                     template === tmpl.id 
-                      ? "bg-violet-600/10 border-violet-500/50" 
-                      : "bg-zinc-950/40 border-zinc-850 hover:border-zinc-800"
+                      ? "bg-theme-accent-bg border-theme-accent-border" 
+                      : "bg-zinc-900/40 border-zinc-850 hover:border-zinc-800"
                   }`}
                 >
                   <div>
-                    <span className={`block font-bold text-sm mb-1.5 ${template === tmpl.id ? "text-violet-400" : "text-zinc-200"}`}>
+                    <span className={`block font-bold text-sm mb-1.5 ${template === tmpl.id ? "text-theme-accent" : "text-zinc-200"}`}>
                       {tmpl.name}
                     </span>
                     <p className="text-xs text-zinc-500 leading-relaxed">{tmpl.desc}</p>
                   </div>
                   <div className="flex justify-end mt-4">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      template === tmpl.id ? "bg-violet-500/20 text-violet-400" : "bg-zinc-900 text-zinc-600"
+                      template === tmpl.id ? "bg-theme-accent-bg text-theme-accent" : "bg-zinc-900 text-zinc-600"
                     }`}>
                       {template === tmpl.id ? "Selected" : "Select"}
                     </span>
@@ -165,7 +165,7 @@ export default function PortfoliosPage() {
         {/* Right Col: Live Preview frame */}
         <div className="space-y-4">
           <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-            <Eye className="h-4 w-4 text-violet-500" />
+            <Eye className="h-4 w-4 text-theme-accent" />
             Website Preview
           </h3>
 

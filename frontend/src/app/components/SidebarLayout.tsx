@@ -26,7 +26,7 @@ interface SidebarLayoutProps {
 // Configured 3 premium dark color themes
 const themeStyles = {
   obsidian: {
-    bg: "bg-zinc-950",
+    bg: "bg-[#0b0b0f]",
     sidebarBg: "bg-zinc-900/50",
     border: "border-zinc-800",
     borderLighter: "border-zinc-800/60",
@@ -41,7 +41,7 @@ const themeStyles = {
     displayName: "Midnight Obsidian"
   },
   abyss: {
-    bg: "bg-slate-950",
+    bg: "bg-[#050a15]",
     sidebarBg: "bg-slate-900/50",
     border: "border-slate-800",
     borderLighter: "border-slate-800/60",
@@ -56,7 +56,7 @@ const themeStyles = {
     displayName: "Oceanic Abyss"
   },
   aurora: {
-    bg: "bg-stone-950",
+    bg: "bg-[#040a08]",
     sidebarBg: "bg-stone-900/50",
     border: "border-stone-800",
     borderLighter: "border-stone-800/60",
@@ -195,7 +195,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <header className={`h-16 border-b ${style.borderLighter} bg-zinc-900/10 backdrop-blur-md flex items-center justify-between px-8 shrink-0`}>
+        <header className={`h-16 border-b ${style.borderLighter} bg-zinc-900/10 backdrop-blur-md flex items-center justify-between px-8 shrink-0 relative z-30`}>
           <div className="flex items-center gap-2">
             <div className={`flex items-center gap-1.5 bg-zinc-800/40 border ${style.borderLighter} px-3 py-1 rounded-full text-xs font-semibold text-zinc-400 shadow-inner`}>
               <TrendingUp className="h-3.5 w-3.5 text-green-500" />

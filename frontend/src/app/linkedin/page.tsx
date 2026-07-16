@@ -74,7 +74,7 @@ export default function LinkedInPage() {
                 <input 
                   type="text" 
                   placeholder="https://linkedin.com/in/username"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:border-violet-500 text-zinc-300 transition-colors"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none border-theme-accent-focus text-zinc-300 transition-colors"
                   value={profileUrl}
                   onChange={(e) => setProfileUrl(e.target.value)}
                 />
@@ -84,7 +84,7 @@ export default function LinkedInPage() {
             <button 
               onClick={handleAnalyze}
               disabled={isAnalyzing || !profileUrl}
-              className="w-full bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-800 disabled:text-zinc-650 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-violet-600/10"
+              className="w-full bg-theme-btn text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-theme-btn"
             >
               {isAnalyzing ? "Analyzing Profile..." : "Analyze Profile"}
               <Sparkles className="h-4 w-4" />

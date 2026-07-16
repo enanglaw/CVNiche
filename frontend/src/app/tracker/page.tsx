@@ -48,7 +48,7 @@ export default function TrackerPage() {
       id: "OFFERED",
       title: "Offered",
       count: 1,
-      color: "border-t-violet-500",
+      color: "border-t-[var(--accent-color)]",
       items: [
         { id: "app-7", title: "Backend Engineer", company: "Vercel", location: "Remote", salary: "$175k - $215k", match: 95 },
       ]
@@ -99,7 +99,7 @@ export default function TrackerPage() {
       <div className="flex items-center justify-between border-b border-zinc-800 pb-6">
         <div>
           <h1 className="text-2xl font-bold text-zinc-100 flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-violet-500" />
+            <Trophy className="h-6 w-6 text-theme-accent" />
             Job Application Tracker
           </h1>
           <p className="text-sm text-zinc-500">Organize your pipeline, evaluate match rates, and forecast interview likelihood.</p>
@@ -107,7 +107,7 @@ export default function TrackerPage() {
         
         <button 
           onClick={() => setShowAddForm(true)}
-          className="bg-violet-600 text-white hover:bg-violet-500 px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-lg shadow-violet-600/10"
+          className="bg-theme-btn text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-lg shadow-theme-btn"
         >
           <Plus className="h-4.5 w-4.5" />
           Add Application
@@ -119,13 +119,13 @@ export default function TrackerPage() {
         <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl space-y-4 max-w-xl animate-in fade-in zoom-in-95 duration-200">
           <h3 className="text-sm font-bold text-zinc-200 uppercase tracking-wider">New Application details</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Job Title</label>
               <input 
                 type="text" 
                 placeholder="e.g. Senior Backend Engineer" 
-                className="w-full bg-zinc-950 border border-zinc-850 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-violet-500 text-zinc-300"
+                className="w-full bg-zinc-950 border border-zinc-850 rounded-lg px-3 py-2 text-xs focus:outline-none border-theme-accent-focus text-zinc-300"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
               />
@@ -136,7 +136,7 @@ export default function TrackerPage() {
               <input 
                 type="text" 
                 placeholder="e.g. Stripe" 
-                className="w-full bg-zinc-950 border border-zinc-850 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-violet-500 text-zinc-300"
+                className="w-full bg-zinc-950 border border-zinc-850 rounded-lg px-3 py-2 text-xs focus:outline-none border-theme-accent-focus text-zinc-300"
                 value={newCompany}
                 onChange={(e) => setNewCompany(e.target.value)}
               />
@@ -148,7 +148,7 @@ export default function TrackerPage() {
             <input 
               type="text" 
               placeholder="e.g. Remote / New York" 
-              className="w-full bg-zinc-950 border border-zinc-850 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-violet-500 text-zinc-300"
+              className="w-full bg-zinc-950 border border-zinc-850 rounded-lg px-3 py-2 text-xs focus:outline-none border-theme-accent-focus text-zinc-300"
               value={newLocation}
               onChange={(e) => setNewLocation(e.target.value)}
             />
@@ -159,7 +159,7 @@ export default function TrackerPage() {
             <textarea 
               rows={4} 
               placeholder="Paste raw requirements text to run automatic resume matching..." 
-              className="w-full bg-zinc-950 border border-zinc-850 rounded-lg p-3 text-xs focus:outline-none focus:border-violet-500 text-zinc-300 placeholder:text-zinc-700"
+              className="w-full bg-zinc-950 border border-zinc-850 rounded-lg p-3 text-xs focus:outline-none border-theme-accent-focus text-zinc-300 placeholder:text-zinc-700"
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
             />
@@ -174,7 +174,7 @@ export default function TrackerPage() {
             </button>
             <button 
               onClick={handleAddApplication}
-              className="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-lg shadow-violet-500/10"
+              className="bg-theme-btn text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-lg shadow-theme-btn"
             >
               Add & Auto-Score
             </button>
@@ -202,7 +202,7 @@ export default function TrackerPage() {
                   className="bg-zinc-900/40 hover:bg-zinc-900/60 border border-zinc-850 hover:border-zinc-800 p-4 rounded-xl space-y-3.5 cursor-grab active:cursor-grabbing transition-all duration-200 shadow-sm relative group"
                 >
                   <div className="space-y-1">
-                    <span className="block text-xs font-bold text-zinc-200 group-hover:text-violet-400 transition-colors leading-tight">{item.title}</span>
+                    <span className="block text-xs font-bold text-zinc-200 group-hover:text-theme-accent transition-colors leading-tight">{item.title}</span>
                     <span className="block text-[10px] text-zinc-500">{item.company}</span>
                   </div>
 
@@ -218,7 +218,7 @@ export default function TrackerPage() {
                   </div>
 
                   <div className="flex justify-between items-center border-t border-zinc-900/60 pt-2.5">
-                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full bg-violet-600/15 text-violet-400 border border-violet-500/10`}>
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full bg-theme-accent-bg text-theme-accent border border-theme-accent-border`}>
                       Match: {item.match}%
                     </span>
                     <button className="text-zinc-650 hover:text-zinc-450 p-0.5"><ChevronRight className="h-4 w-4" /></button>

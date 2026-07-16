@@ -53,12 +53,12 @@ export default function ResumesPage() {
       <div className="flex items-center justify-between border-b border-zinc-800 pb-6">
         <div>
           <h1 className="text-2xl font-bold text-zinc-100 flex items-center gap-2">
-            <FileText className="h-6 w-6 text-violet-500" />
+            <FileText className="h-6 w-6 text-theme-accent" />
             Resume Builder & ATS Optimizer
           </h1>
           <p className="text-sm text-zinc-500">Create, optimize, and customize tailored resumes for every application.</p>
         </div>
-        <button className="bg-violet-600 text-white hover:bg-violet-500 px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-lg shadow-violet-600/10">
+        <button className="bg-theme-btn text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5 shadow-lg shadow-theme-btn">
           <Sparkles className="h-4 w-4" />
           Create New Resume
         </button>
@@ -76,7 +76,7 @@ export default function ResumesPage() {
                 onClick={() => setActiveResume(resume.id)}
                 className={`p-4 rounded-xl border cursor-pointer transition-all ${
                   activeResume === resume.id 
-                    ? "bg-violet-600/10 border-violet-500/50 text-zinc-100" 
+                    ? "bg-theme-accent-bg border-theme-accent-border text-zinc-100" 
                     : "bg-zinc-900/30 border-zinc-850 text-zinc-400 hover:border-zinc-800"
                 }`}
               >
@@ -114,7 +114,7 @@ export default function ResumesPage() {
               <textarea 
                 rows={6}
                 placeholder="Paste the raw job posting text or description here..."
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-sm focus:outline-none focus:border-violet-500 text-zinc-300 transition-colors placeholder:text-zinc-600"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-sm focus:outline-none border-theme-accent-focus text-zinc-300 transition-colors placeholder:text-zinc-600"
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
               />
@@ -124,7 +124,7 @@ export default function ResumesPage() {
               <button 
                 onClick={handleAnalyze}
                 disabled={isAnalyzing || !jobDescription}
-                className="bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-800 disabled:text-zinc-600 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-lg shadow-violet-600/10 text-white"
+                className="bg-theme-btn disabled:bg-zinc-800 disabled:text-zinc-655 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-lg shadow-theme-btn text-white"
               >
                 {isAnalyzing ? "AI Optimizing..." : "Analyze ATS & Tailor Resume"}
                 <Sparkles className="h-4.5 w-4.5" />
