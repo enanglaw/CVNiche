@@ -8,6 +8,8 @@ import { ResumeModule } from './resume/resume.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { JobModule } from './job/job.module';
 import { AiModule } from './ai/ai.module';
+import { PaymentModule } from './payment/payment.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { AiModule } from './ai/ai.module';
     PortfolioModule,
     JobModule,
     AiModule,
+    PaymentModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

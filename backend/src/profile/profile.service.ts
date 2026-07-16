@@ -244,4 +244,37 @@ export class ProfileService {
 
     return this.prisma.certificate.delete({ where: { id: certificateId } });
   }
+
+  // User notification & campaign preference overrides
+  async getPreferences(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        notifyJobAlerts: true,
+        notifyMarketing: true,
+        notifyPromos: true,
+      },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
+  async updatePreferences(userId: string, data: { notifyJobAlerts?: boolean; notifyMarketing?: boolean; notifyPromos?: boolean }) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        notifyJobAlerts: data.notifyJobAlerts !== undefined ? data.notifyJobAlerts : undefined,
+        notifyMarketing: data.notifyMarketing !== undefined ? data.notifyMarketing : undefined,
+        notifyPromos: data.notifyPromos !== undefined ? data.notifyPromos : undefined,
+      },
+      select: {
+        notifyJobAlerts: true,
+        notifyMarketing: true,
+        notifyPromos: true,
+      },
+    });
+  }
 }

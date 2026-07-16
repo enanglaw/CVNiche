@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -13,6 +13,13 @@ export class PortfolioService {
   }
 
   async createPortfolio(userId: string, data: { slug: string; template?: string; themeSettings?: any; customDomain?: string }) {
+    if (data.customDomain) {
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (user && user.plan === 'FREE') {
+        throw new ForbiddenException('Upgrade to Pro to map custom domains.');
+      }
+    }
+
     const existing = await this.prisma.portfolio.findFirst({
       where: {
         OR: [
@@ -49,6 +56,11 @@ export class PortfolioService {
     const portfolio = await this.getPortfolio(userId, id);
 
     if (data.customDomain && data.customDomain !== portfolio.customDomain) {
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
+      if (user && user.plan === 'FREE') {
+        throw new ForbiddenException('Upgrade to Pro to map custom domains.');
+      }
+
       const domainConflict = await this.prisma.portfolio.findUnique({
         where: { customDomain: data.customDomain },
       });

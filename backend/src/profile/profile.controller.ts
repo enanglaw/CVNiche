@@ -86,4 +86,20 @@ export class ProfileController {
   async deleteCertificate(@Request() req: any, @Param('id') id: string) {
     return this.profileService.deleteCertificate(req.user.sub, id);
   }
+
+  // Communication preferences (opt-in / opt-out)
+  @Get('preferences')
+  async getPreferences(@Request() req: any) {
+    const userId = req.user.sub || req.user.id;
+    return this.profileService.getPreferences(userId);
+  }
+
+  @Put('preferences')
+  async updatePreferences(
+    @Request() req: any, 
+    @Body() body: { notifyJobAlerts?: boolean; notifyMarketing?: boolean; notifyPromos?: boolean }
+  ) {
+    const userId = req.user.sub || req.user.id;
+    return this.profileService.updatePreferences(userId, body);
+  }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -16,7 +16,10 @@ import {
   Sparkles,
   ChevronRight,
   TrendingUp,
-  Palette
+  Palette,
+  CreditCard,
+  Shield,
+  Settings
 } from "lucide-react";
 
 interface SidebarLayoutProps {
@@ -99,22 +102,55 @@ const themeVars = {
   }
 };
 
+const decodeJwt = (token: string) => {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      window.atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+};
+
 export default function SidebarLayout({ children }: SidebarLayoutProps) {
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
   const [theme, setTheme] = useState<keyof typeof themeStyles>("obsidian");
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const payload = decodeJwt(token);
+      if (payload && payload.role === "ADMIN") {
+        setIsAdmin(true);
+      }
+    }
+  }, []);
 
   const style = themeStyles[theme];
 
-  const navigation = [
+  const baseNavigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "Resumes", href: "/resumes", icon: FileText },
     { name: "Portfolio Website", href: "/portfolios", icon: Globe },
     { name: "LinkedIn Optimizer", href: "/linkedin", icon: Linkedin },
     { name: "Job Tracker", href: "/tracker", icon: Trophy },
     { name: "AI Career Coach", href: "/coach", icon: MessageSquare },
+    { name: "Pricing & Plans", href: "/pricing", icon: CreditCard },
+    { name: "Settings", href: "/settings", icon: Settings },
   ];
+
+  const navigation = isAdmin 
+    ? [...baseNavigation, { name: "Admin Console", href: "/admin", icon: Shield }]
+    : baseNavigation;
 
   return (
     <div 

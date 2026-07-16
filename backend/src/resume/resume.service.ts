@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -13,6 +13,23 @@ export class ResumeService {
   }
 
   async createResume(userId: String, data: { title: string; templateId?: string; content: any; targetJobTitle?: string }) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: String(userId) },
+    });
+    
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.plan === 'FREE') {
+      const count = await this.prisma.resume.count({
+        where: { userId: String(userId) },
+      });
+      if (count >= 1) {
+        throw new ForbiddenException('Upgrade to Pro to build unlimited resumes.');
+      }
+    }
+
     return this.prisma.resume.create({
       data: {
         userId: String(userId),
